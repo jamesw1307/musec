@@ -8,44 +8,50 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///musek.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-
-conn = sqlite3.connect('musek.db') #connect database
-cursor = conn.cursor()
-username = ""
 #The login page will be the default page the website directs to
 @app.route('/', methods = ['POST', 'GET'])
 def login():
     global username
+    errorMessage = None
     #takes values from the username and password input box
     if request.method == 'POST':
+        #
         username = request.form.get('username')
         password = request.form.get('password')
-        conn = sqlite3.connect('musek.db') #connect database
-        cursor = conn.cursor()
-        #Get id of the username entered
-        cursor.execute('SELECT id FROM User WHERE username = ?;', (username,))
-        userId = cursor.fetchone()
-        conn.close()
-        if list(username):
-            if list(password):
-                return redirect(url_for('profile', id = userId[0]))
-            else:
-                print('Enter valid password')
+
+        new_username = request.form.get('new_username')
+        new_password = request.form.get('new_password')
+        #takes username and password values from new_username and new_password and commits it to musek.db
+        if new_password and new_username:
+            db.session.add(models.User(username=new_username, password=new_password))
+            db.session.commit()
+        else:
+            errorMessage = 'please enter a valid username and password'
+
+        if username and password:
+            #Get id from db of the username and password entered in username and password
+            userInfo = models.User.query.filter_by(username=username, password=password).all()
+            print(userInfo)
+            userId = userInfo[0].id
+            #if username and password are list redirect to profile with id = userId
+            if list(username) and list(password):
+                print('valid')
+                return redirect(url_for('profile', id = userId))
         
-    return render_template('profile.html')
+        
+    return render_template('login.html', errorMessage=errorMessage)
 
 @app.route('/user/<int:id>')
 def profile(id):
     global username
-    #profile = User.query.filter_by().first_or_404()
-    conn = sqlite3.connect('musek.db') #connect database
-    cursor = conn.cursor()
-    cursor.execute('SELECT id FROM User WHERE username = ?;', (username,)) #Execute query
-    userId = cursor.fetchone()
-    cursor.execute('SELECT name FROM Album WHERE id IN (SELECT albumId FROM UserAlbumGenreArtist WHERE userId = ?);', (id,))
-    profile = cursor.fetchall() #fetch every result
-    conn.close()
-    return render_template('profile.html', profile = profile, userId = userId)
+    profile = models.User.query.filter_by().first_or_404()
+    
+    #cursor.execute('SELECT id FROM User WHERE username = ?;', (username,)) #Execute query
+    username = models.User.query.filter_by(id=id)
+    
+    #cursor.execute('SELECT name FROM Album WHERE id IN (SELECT albumId FROM UserAlbumGenreArtist WHERE userId = ?);', (id,))
+    
+    return render_template('profile.html', userId=id)
 
 if __name__ == '__main__':
     app.run(port = 8080, debug = True)
