@@ -1,1 +1,23 @@
-musec
+This is the profile page, which will have a login box, and show your entries to the database.<br>
+
+{% include 'header.html'%}<br>
+
+<h2>
+    Your user albums = 
+    {% for albums in albumInfo %}
+        {{albums.name, albums.releaseDate}}
+    {% endfor %}
+</h2><br>
+<h2>
+    Your user artists =
+    {% for artists in artistInfo %}
+        {{artists.name, artists.description, artists.activeYears}}
+    {% endfor %}
+</h2>
+<h2>
+    Your user genres = 
+    {% for genres in genreInfo %}
+        {{genres.name, genres.description}}
+    {% endfor %}
+</h2>
+<p>Your username = {{username.username}}</p>

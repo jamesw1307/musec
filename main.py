@@ -26,6 +26,7 @@ def login():
             db.session.add(models.User(username=new_username, password=new_password))
             db.session.commit()
         else:
+            #if no value print errorMessage
             errorMessage = 'please enter a valid username and password'
 
         if username and password:
@@ -37,8 +38,9 @@ def login():
             if list(username) and list(password):
                 print('valid')
                 return redirect(url_for('profile', id = userId))
-        
-        
+        elif username:
+            errorMessage = 'incorrect password'
+
     return render_template('login.html', errorMessage=errorMessage)
 
 @app.route('/user/<int:id>')
@@ -48,10 +50,13 @@ def profile(id):
     
     #cursor.execute('SELECT id FROM User WHERE username = ?;', (username,)) #Execute query
     username = models.User.query.filter_by(id=id)
-    
     #cursor.execute('SELECT name FROM Album WHERE id IN (SELECT albumId FROM UserAlbumGenreArtist WHERE userId = ?);', (id,))
-    
-    return render_template('profile.html', userId=id)
+    albumInfo = models.Album.query.filter_by(addedBy=id).all()
+    artistInfo = models.Artist.query.filter_by(addedBy=id).all()
+    genreInfo = models.Genre.query.filter_by(addedBy=id).all()
+    return render_template('profile.html', username=username, albumInfo=albumInfo, artistInfo=artistInfo, genreInfo=genreInfo)
+
+#@app.route('/album')
 
 if __name__ == '__main__':
     app.run(port = 8080, debug = True)
