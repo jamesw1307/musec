@@ -1,6 +1,6 @@
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
-import sqlite3
+
 from main import db
 
 #These classes take data from the musek.db file to use in the code
@@ -17,7 +17,7 @@ class Genre(db.Model):
     name = db.Column(db.String())
     description = db.Column(db.String())
     addedBy = db.Column(db.Integer, db.ForeignKey('User.id'))
-    albums = db.Column(db.Integer, db.ForeignKey('Album.id'))
+    #albums = db.Column(db.Integer, db.ForeignKey('Album.id'))
 
 class Artist(db.Model):
     __tablename__ = 'Artist'
@@ -27,7 +27,7 @@ class Artist(db.Model):
     description = db.Column(db.String())
     activeYears = db.Column(db.String())
     addedBy = db.Column(db.Integer, db.ForeignKey('User.id'))
-    albums = db.Column(db.Integer, db.ForeignKey('Album.id'))
+    #albums = db.Column(db.Integer, db.ForeignKey('Album.id'))
 
 class Album(db.Model):
     __tablename__ = 'Album'
@@ -37,7 +37,6 @@ class Album(db.Model):
     releaseDate = db.Column(db.String())
     addedBy = db.Column(db.Integer, db.ForeignKey('User.id'))
     artist = db.Column(db.Integer, db.ForeignKey('Artist.id'))
-    genre = db.Column(db.Integer, db.ForeignKey('Genre.id'))
 '''
 class UserAlbumGenreArtist(db.Model):
     __tablename__ = 'UserAlbumGenreArtist'

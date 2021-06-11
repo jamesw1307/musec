@@ -1,0 +1,17 @@
+{% include 'header.html'%}
+
+<h2>
+    Albums posts =
+    {% for albums in allAlbums %}
+        {{albums.name, albums.releaseDate}}
+    {% endfor %}
+</h2><br>
+
+<p>Add Album Entry:</p>
+<form action = '/album' method='POST'>
+    <label for = 'album_name'>Album Name:</label><br>
+    <input type = 'text' name='album_name'><br>
+    <label for = 'release_date'>Release Date:</label><br>
+    <input type = 'text' name='release_date'><br>
+    <input type = 'submit' value = 'Add Entry'>
+</form>

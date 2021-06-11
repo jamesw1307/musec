@@ -11,7 +11,7 @@ db = SQLAlchemy(app)
 #The login page will be the default page the website directs to
 @app.route('/', methods = ['POST', 'GET'])
 def login():
-    global username
+    global userId
     errorMessage = None
     #takes values from the username and password input box
     if request.method == 'POST':
@@ -32,7 +32,6 @@ def login():
         if username and password:
             #Get id from db of the username and password entered in username and password
             userInfo = models.User.query.filter_by(username=username, password=password).all()
-            print(userInfo)
             userId = userInfo[0].id
             #if username and password are list redirect to profile with id = userId
             if list(username) and list(password):
@@ -46,17 +45,31 @@ def login():
 @app.route('/user/<int:id>')
 def profile(id):
     global username
-    profile = models.User.query.filter_by().first_or_404()
+    #profile = models.User.query.filter_by().first_or_404()
     
     #cursor.execute('SELECT id FROM User WHERE username = ?;', (username,)) #Execute query
-    username = models.User.query.filter_by(id=id)
+    username = models.User.query.filter_by(id=userId)
     #cursor.execute('SELECT name FROM Album WHERE id IN (SELECT albumId FROM UserAlbumGenreArtist WHERE userId = ?);', (id,))
     albumInfo = models.Album.query.filter_by(addedBy=id).all()
     artistInfo = models.Artist.query.filter_by(addedBy=id).all()
     genreInfo = models.Genre.query.filter_by(addedBy=id).all()
     return render_template('profile.html', username=username, albumInfo=albumInfo, artistInfo=artistInfo, genreInfo=genreInfo)
 
-#@app.route('/album')
+@app.route('/album', methods = ['POST', 'GET'])
+def album():
+    global userId
+    print(userId)
+    if request.method == 'POST':
+        album_name = request.form.get('album_name')
+        release_date = request.form.get('release_date')
+
+        if album_name and release_date:
+            db.session.add(models.Album(name=album_name, releaseDate=release_date, addedBy=userId))
+            db.session.commit()
+
+    allAlbums = models.Album.query.all()
+
+    return render_template('album.html', allAlbums=allAlbums)
 
 if __name__ == '__main__':
     app.run(port = 8080, debug = True)
