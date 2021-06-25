@@ -2,22 +2,25 @@
 and a submit button-->
 {% include 'header.html'%}<br>
 
-<p>Sign Up:</p>
-<form action = '/' method='POST'>
-    <label for = 'new_username'>New Username:</label><br>
-    <input type = 'text' name='new_username'><br>
-    <label for = 'new_password'>New Password:</label><br>
-    <input type = 'text' name='new_password'><br>
-    <input type = 'submit' value = 'Sign Up'>
-</form>
+<style>
+    input{
+        width: 100%;
+    }
+    div{
+        width: 300px;
+        padding: 5px;
+        border: 3px palegoldenrod;
+        margin: 0%;
+    }
+</style>
 
-<p>Login:</p>
-<form action = '/' method='POST'>
-    <label for = 'username'>Username:</label><br>
-    <input type = 'text' name='username'><br>
-    <label for = 'password'>Password:</label><br>
-    <input type = 'text' name='password'><br>
-    <input type = 'submit' value = 'Login'>
-</form>
-
-<p>{% if errorMessage %} {{errorMessage}} {% endif %}</p>
+<div>
+    <p>Login:</p>
+    <form action = '/login' method='POST'>
+        <label for = 'username'>Username:</label><br>
+        <input type = 'text' name='username'><br>
+        <label for = 'password'>Password:</label><br>
+        <input type = 'password' name='password'><br>
+        <input type = 'submit' value = 'Login'>
+    </form>
+</div>

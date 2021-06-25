@@ -1,0 +1,11 @@
+{% include 'header.html'%}<br>
+
+<p>Sign Up:</p>
+    <form action = '/' method='POST'>
+        <label for = 'new_username'>New Username:</label><br>
+        <input type = 'text' name='new_username'><br>
+        <label for = 'new_password'>New Password:</label><br>
+        <input type = 'password' name='new_password'><br>
+        <input type = 'submit' value = 'Sign Up'>
+    </form>
+    <p>{% if errorMessage %} {{errorMessage}} {% endif %}</p>
