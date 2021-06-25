@@ -1,9 +1,9 @@
 {% include 'header.html'%}
 
 <h2>
-    Albums posts =
-    {% for albums in allAlbums %}
-        {{albums.name, albums.releaseDate}}
+    Albums posts = <br>
+    {% for album in allAlbums %}
+        {{album.name, album.releaseDate}}<br>
     {% endfor %}
 </h2><br>
 

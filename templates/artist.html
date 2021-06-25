@@ -1,0 +1,22 @@
+{% include 'header.html'%}
+<!--<link rel='stylesheet' href="{{url_for('style', filename='style.css')}}"-->
+
+<h2>
+    Artist posts = <br>
+    {% for artist in allArtists %}
+        Name: {{artist.name}} <br>
+        Description: {{artist.description}} <br>
+        Active Years: {{artist.activeYears}}<br>
+    {% endfor %}
+</h2><br>
+
+<p>Add Album Entry:</p>
+<form action = '/artist' method='POST'>
+    <label for = 'artist_name'>Artist Name:</label><br>
+    <input type = 'text' name='artist_name'><br>
+    <label for = 'description'>Description:</label><br>
+    <input type = 'text' name='description'><br>
+    <label for = 'active_years'>Active Years:</label><br>
+    <input type = 'text' name='active_years'><br>
+    <input type = 'submit' value = 'Add Entry'>
+</form>
