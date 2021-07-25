@@ -11,13 +11,8 @@ class User(db.Model):
     username = db.Column(db.String())
     password = db.Column(db.String())
 
-class Genre(db.Model):
-    __tablename__ = 'Genre'
-    id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String())
-    description = db.Column(db.String())
-    addedBy = db.Column(db.Integer, db.ForeignKey('User.id'))
-    #albums = db.Column(db.Integer, db.ForeignKey('Album.id'))
+    def __repr__(self):
+        return self.username
 
 class Artist(db.Model):
     __tablename__ = 'Artist'
@@ -26,17 +21,43 @@ class Artist(db.Model):
     photo = db.Column(db.String())
     description = db.Column(db.String())
     activeYears = db.Column(db.String())
+
     addedBy = db.Column(db.Integer, db.ForeignKey('User.id'))
-    #albums = db.Column(db.Integer, db.ForeignKey('Album.id'))
+
+    def __repr__(self):
+        return self.name
+
+AlbumGenres = db.Table('AlbumGenres', db.Model.metadata,
+    db.Column('genreId', db.Integer, db.ForeignKey('Genre.id')),
+    db.Column('albumId', db.Integer, db.ForeignKey('Album.id')),
+)
+
+class Genre(db.Model):
+    __tablename__ = 'Genre'
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String())
+    description = db.Column(db.String())
+    addedBy = db.Column(db.Integer, db.ForeignKey('User.id'))
+
+    albums = db.relationship('Album', secondary=AlbumGenres, back_populates='genres')
+
+    def __repr__(self):
+        return self.name
 
 class Album(db.Model):
     __tablename__ = 'Album'
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String())
     coverArt = db.Column(db.String())
-    releaseDate = db.Column(db.String())
+    releaseDate = db.Column(db.Integer())
     addedBy = db.Column(db.Integer, db.ForeignKey('User.id'))
     artist = db.Column(db.Integer, db.ForeignKey('Artist.id'))
+
+    genres = db.relationship('Genre', secondary=AlbumGenres, back_populates='albums')
+    artistName = db.relationship('Artist', backref = 'albumss')
+
+    def __repr__(self):
+        return self.name
 '''
 class UserAlbumGenreArtist(db.Model):
     __tablename__ = 'UserAlbumGenreArtist'
