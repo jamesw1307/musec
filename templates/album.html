@@ -3,15 +3,18 @@
 <h2>
     Albums posts = <br>
     {% for album in allAlbums %}
-        {{album.name, album.releaseDate}}<br>
+        {{album.name, album.releaseDate}} Artist = {{album.artistName.name}}, Genres = {{album.genres}} <br><br>
     {% endfor %}
-</h2><br>
+</h2>
 
 <p>Add Album Entry:</p>
-<form action = '/album' method='POST'>
+<form action = '/album' method='POST' enctype="multipart/form-data">
     <label for = 'album_name'>Album Name:</label><br>
     <input type = 'text' name='album_name'><br>
     <label for = 'release_date'>Release Date:</label><br>
     <input type = 'text' name='release_date'><br>
+    Artist:<br>
+    {{form.hidden_tag()}}
+    {{form.artists}}<br>
     <input type = 'submit' value = 'Add Entry'>
 </form>
