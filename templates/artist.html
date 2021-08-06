@@ -1,16 +1,6 @@
 {% include 'header.html'%}
-<!--<link rel='stylesheet' href="{{url_for('style', filename='style.css')}}"-->
 
-<h2>
-    Artist posts = <br>
-    {% for artist in allArtists %}
-        Name: {{artist.name}} <br>
-        Description: {{artist.description}} <br>
-        Active Years: {{artist.activeYears}}<br>
-    {% endfor %}
-</h2><br>
-
-<p>Add Album Entry:</p>
+<p>Add Artist Entry:</p>
 <form action = '/artist' method='POST'>
     <label for = 'artist_name'>Artist Name:</label><br>
     <input type = 'text' name='artist_name'><br>
@@ -20,3 +10,14 @@
     <input type = 'text' name='active_years'><br>
     <input type = 'submit' value = 'Add Entry'>
 </form>
+
+<h2>
+    Artist posts = <br>
+    {% for artist in allArtists %}
+        Name: {{artist.name}} <br>
+        Description: {{artist.description}} <br>
+        Active Years: {{artist.activeYears}}<br>
+        Albums: {{artist.albums}}<br><br>
+    {% endfor %}
+</h2>
+
