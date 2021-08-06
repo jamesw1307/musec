@@ -16,7 +16,7 @@ app = Flask(__name__)
 SECRET_KEY = ('jam')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///musek.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+db = SQLAlchemy(app, session_options={'autoflush': False})
 
 #The login page will be the default page the website directs to
 @app.route('/', methods = ['POST', 'GET'])
@@ -55,9 +55,9 @@ def login():
         #check that username and unhashed password match
         if username and check_password_hash(user_stuff.password, password):
             #Get id from db of the username entered in username
-            userInfo = models.User.query.filter_by(username=username).all()
+            userInfo = models.User.query.filter_by(username=username).first_or_404()
             #get id of the user
-            userId = userInfo[0].id
+            userId = userInfo.id
             #if username and password are list redirect to profile with id = userId and session to true
             if list(username) and list(password):
                 print('valid')
@@ -105,10 +105,10 @@ def album():
 
         #if all fields are full enter to db
         if form.validate_on_submit() and album_name and release_date:
+            #get selected artist from form and query for its id
             artist = dict(form.artists.choices).get(form.artists.data)
-            print(artist)
-            artistInfo = models.Artist.query.filter_by(name=artist).all()
-            artistId = artistInfo[0].id
+            artistInfo = models.Artist.query.filter_by(name=artist).first_or_404()
+            artistId = artistInfo.id
 
             albumInfo = (models.Album(name=album_name, releaseDate=release_date, artist=artistId, addedBy=userId))
             
@@ -139,9 +139,14 @@ def artist():
         if artist_name and description and active_years and artist_name:
             db.session.add(models.Artist(name=artist_name, description=description, activeYears=active_years, addedBy=userId))
             db.session.commit()
+        else:
+            print('please enter in all fields')
 
     allArtists = models.Artist.query.all()
     return render_template('artist.html', username=username, allArtists=allArtists)
+
+class SelectAlbum(FlaskForm):
+    albums = SelectField('Album', validators=[DataRequired()], coerce=int)
 
 @app.route('/genre', methods = ['POST', 'GET'])
 def genre():
@@ -152,8 +157,36 @@ def genre():
         userId = userInfo
         username = models.User.query.filter_by(id=userId)
 
+    form = SelectAlbum()
+    albums = models.Album.query.all()
+    form.albums.choices = [(album.id, album.name) for album in albums]
+
+    if request.method == 'POST':
+        genre_name = request.form.get('genre_name')
+        description = request.form.get('description')
+
+        if genre_name and description:
+            genreInfo = (models.Genre(name=genre_name, description=description, addedBy=userId))
+            
+            db.session.add(genreInfo)
+            db.session.commit()
+        
+        if form.validate_on_submit():
+            #get selected album from form and query for its id
+            album = dict(form.albums.choices).get(form.albums.data)
+            albumInfo = models.Album.query.filter_by(name=album).first_or_404()
+
+            #get genreId from request form from html
+            genreId = request.form.get('genre_id')
+
+            genre = models.Genre.query.filter_by(id=genreId).first_or_404()
+            genre.albums.append(albumInfo)
+            db.session.merge(genre)
+            db.session.commit()
+    
     allGenres = models.Genre.query.all()
-    return render_template('genre.html', username=username, allGenres=allGenres) 
+
+    return render_template('genre.html', username=username, allGenres=allGenres, form=form) 
 
 if __name__ == '__main__':
     app.secret_key = urandom(10)
