@@ -23,6 +23,7 @@ class Artist(db.Model):
     activeYears = db.Column(db.String())
 
     addedBy = db.Column(db.Integer, db.ForeignKey('User.id'))
+    albums = db.relationship('Album', backref='Artist')
 
     def __repr__(self):
         return self.name
@@ -54,15 +55,7 @@ class Album(db.Model):
     artist = db.Column(db.Integer, db.ForeignKey('Artist.id'))
 
     genres = db.relationship('Genre', secondary=AlbumGenres, back_populates='albums')
-    artistName = db.relationship('Artist', backref = 'albumss')
+    artistName = db.relationship('Artist', backref='Album')
 
     def __repr__(self):
         return self.name
-'''
-class UserAlbumGenreArtist(db.Model):
-    __tablename__ = 'UserAlbumGenreArtist'
-    albumId = db.Column(db.Integer, db.ForeignKey('album.Id'))
-    genreId = db.Column(db.Integer, db.ForeignKey('genre.Id'))
-    artistId = db.Column(db.Integer, db.ForeignKey('artist.Id'))
-    userId = db.Column(db.Integer, db.ForeignKey('user.Id'))
-    '''
