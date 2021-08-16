@@ -1,11 +1,26 @@
-{% include 'header.html'%}<br>
+<html>
+    <head>
+        <title>Musec.</title>
+        <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+    </head>
 
-<p>Sign Up:</p>
-    <form action = '/' method='POST'>
-        <label for = 'new_username'>New Username:</label><br>
-        <input type = 'text' name='new_username'><br>
-        <label for = 'new_password'>New Password:</label><br>
-        <input type = 'password' name='new_password'><br>
-        <input type = 'submit' value = 'Sign Up'>
-    </form>
-    <p>{% if errorMessage %} {{errorMessage}} {% endif %}</p>
+    <div id='navbar'>
+        <h1>MUSEC.</h1>
+        <a href = '/login'>Login</a> - 
+        <a href = '/'>Create Account</a>
+    </div>
+
+    <div id='login_create'>
+        <h2>Sign Up:</h2>
+            <form action = '/' method='POST'>
+                <label for = 'new_username'>New Username:</label><br>
+                <input type = 'text' placeholder='Enter Username (10 characters max)' maxlength='10' name='new_username'
+                style='width: 300px'><br>
+                <label for = 'new_password'>New Password:</label><br>
+                <input type = 'password' placeholder='Enter Password (12 characters max)' maxlength='12' name='new_password'
+                style='width: 300px'><br>
+                <input type = 'submit' value = 'Sign Up'>
+            </form>
+            <p>{% if errorMessage %} {{errorMessage}} {% endif %}</p>
+    </div>
+</html>

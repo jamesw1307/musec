@@ -1,26 +1,27 @@
 <!--A username and passwrd textbox that takes a text input
 and a submit button-->
-{% include 'header.html'%}<br>
+<html>
+    <head>
+        <title>Musec.</title>
+        <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+    </head>
 
-<style>
-    input{
-        width: 100%;
-    }
-    div{
-        width: 300px;
-        padding: 5px;
-        border: 3px palegoldenrod;
-        margin: 0%;
-    }
-</style>
+    <div id='navbar'>
+        <h1>MUSEC.</h1>
+        <a href = '/login'>Login</a> - 
+        <a href = '/'>Create Account</a>
+    </div>
 
-<div>
-    <p>Login:</p>
-    <form action = '/login' method='POST'>
-        <label for = 'username'>Username:</label><br>
-        <input type = 'text' name='username'><br>
-        <label for = 'password'>Password:</label><br>
-        <input type = 'password' name='password'><br>
-        <input type = 'submit' value = 'Login'>
-    </form>
-</div>
+    <div id='login_create'>
+        <h2>Login:</h2>
+        <form action = '/login' method='POST'>
+            <label for = 'username'>Username:</label><br>
+            <input type = 'text' placeholder='Enter Username' maxlength='10' name='username'
+            style='width: 300px'><br>
+            <label for = 'password'>Password:</label><br>
+            <input type = 'password' placeholder='Enter Password' maxlength='12' name='password'
+            style='width: 300px'><br>
+            <input type = 'submit' value = 'Login'>
+        </form>
+    </div>
+</html>
