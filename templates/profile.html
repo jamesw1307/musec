@@ -1,22 +1,47 @@
-This is the profile page, which will have a login box, and show your entries to the database.<br>
-
 {% include 'header.html'%}<br>
 
-<h2>
-    Your user albums = 
-    {% for albums in albumInfo %}
-        {{albums.name, albums.releaseDate}}
-    {% endfor %}
-</h2><br>
-<h2>
-    Your user artists =
-    {% for artists in artistInfo %}
-        {{artists.name, artists.description, artists.activeYears}}
-    {% endfor %}
-</h2>
-<h2>
-    Your user genres = 
-    {% for genres in genreInfo %}
-        {{genres.name, genres.description}}
-    {% endfor %}
-</h2>
+<div id='user_albums'>
+    <h2>Your User Albums:</h2>
+    <p1>
+        {% for albums in albumInfo %}
+            Name: {{albums.name}} <br>
+            Release Date: {{albums.releaseDate}} <br>
+            Artist: {{albums.artistName.name}} <br>
+            Genres: {{albums.genres}} <br>
+
+            <form action='/profile' method='POST'>
+                <input type='hidden' name='album_id' value={{albums.id}}>
+                <input type='submit' value='Delete'>
+            </form><br>
+        {% endfor %}
+    </p1><br>
+</div>
+<div id='user_artists'>
+    <h2>Your User Artists:</h2>
+    <p2>
+        {% for artists in artistInfo %}
+            Name: {{artists.name}}<br>
+            Description: {{artists.description}}<br> 
+            Active Years: {{artists.activeYears}}<br>
+
+            <form action='/profile' method='POST'>
+                <input type='hidden' name='artist_id' value={{artists.id}}>
+                <input type='submit' value='Delete'>
+            </form><br>
+        {% endfor %}
+    </p2><br>
+</div>
+<div id='user_genres'>
+    <h2>Your User Genres:</h2>
+    <p3>
+        {% for genres in genreInfo %}
+            Name: {{genres.name}} <br>
+            Description: {{genres.description}}<br>
+
+            <form action='/profile' method='POST'>
+                <input type='hidden' name='genre_id' value={{genres.id}}>
+                <input type='submit' value='Delete'>
+            </form><br>
+        {% endfor %}
+    </p3><br>
+</div>

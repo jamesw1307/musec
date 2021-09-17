@@ -30,7 +30,7 @@ def create_account():
         if new_password and new_username:
             user_info = models.User(
                 username = new_username,
-                #generates a random string fpr the password in the database so the users password is secure
+                #generates a random string for the password in the database so the users password is secure
                 password = generate_password_hash(new_password, salt_length=10)
             )
             db.session.add(user_info)
@@ -58,7 +58,7 @@ def login():
             userInfo = models.User.query.filter_by(username=username).first_or_404()
             #get id of the user
             userId = userInfo.id
-            #if username and password are list redirect to profile with id = userId and session to true
+            #if username and password are list redirect to profile with session containing the users id
             if list(username) and list(password):
                 print('valid')
                 session['logged_in'] = userId
@@ -67,7 +67,7 @@ def login():
             errorMessage = 'enter into all fields'
     return render_template('login.html', errorMessage=errorMessage)
 
-@app.route('/user')
+@app.route('/profile', methods=['POST', 'GET'])
 def profile():
     #if user tries to access page without being logged in redirect to create_account
     if 'logged_in' not in session:
@@ -81,12 +81,33 @@ def profile():
     albumInfo = models.Album.query.filter_by(addedBy=userId).all()
     artistInfo = models.Artist.query.filter_by(addedBy=userId).all()
     genreInfo = models.Genre.query.filter_by(addedBy=userId).all()
+
+    #if delete button on any user entry is clicked
+    if request.method == 'POST':
+        #get id of the entry linked to the delete button
+        album_id = request.form.get('album_id')
+        artist_id = request.form.get('artist_id')
+        genre_id = request.form.get('genre_id')
+
+        #if there is a value for the entry id, delete from the database
+        if album_id:
+            db.session.query(models.Album).filter_by(id=album_id).delete()
+            db.session.commit()
+        elif artist_id:
+            db.session.query(models.Artist).filter_by(id=artist_id).delete()
+            db.session.commit()
+        elif genre_id:
+            db.session.query(models.Genre).filter_by(id=genre_id).delete()
+            db.session.commit()
+
+        return redirect(url_for('profile')) #reload page
+
     return render_template('profile.html', username=username, albumInfo=albumInfo, artistInfo=artistInfo, genreInfo=genreInfo)
 
 class SelectArtist(FlaskForm):
     artists = SelectField('Artist', validators=[DataRequired()], coerce=int)
 
-@app.route('/album', methods = ['POST', 'GET'])
+@app.route('/album', methods=['POST', 'GET'])
 def album():
     if 'logged_in' not in session:
         return redirect(url_for('create_account'))
@@ -129,7 +150,7 @@ def artist():
     elif 'logged_in' in session:
         userInfo = session['logged_in']
         userId = userInfo
-        username = models.User.query.filter_by(id=userId)
+        username = models.User.query.filter_by(id=userId).first_or_404()
 
     if request.method == 'POST':
         artist_name = request.form.get('artist_name')
@@ -155,7 +176,7 @@ def genre():
     elif 'logged_in' in session:
         userInfo = session['logged_in']
         userId = userInfo
-        username = models.User.query.filter_by(id=userId)
+        username = models.User.query.filter_by(id=userId).first_or_404()
 
     form = SelectAlbum()
     albums = models.Album.query.all()
