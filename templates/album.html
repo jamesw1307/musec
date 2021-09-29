@@ -1,20 +1,34 @@
 {% include 'header.html'%}
 
-<p>Add Album Entry:</p>
-<form action = '/album' method='POST' enctype="multipart/form-data">
-    <label for = 'album_name'>Album Name:</label><br>
-    <input type = 'text' name='album_name'><br>
-    <label for = 'release_date'>Release Date:</label><br>
-    <input type = 'text' name='release_date'><br>
-    Artist:<br>
-    {{form.hidden_tag()}}
-    {{form.artists}}<br>
-    <input type = 'submit' value = 'Add Entry'>
-</form>
+<div id='add_entry'>
+    <h2>Add Album Entry:</h2>
+    <form action = '/album' method='POST' enctype="multipart/form-data">
+        <label for = 'album_name'>Album Name:</label><br>
+        <input type = 'text' name='album_name'><br>
+        <label for = 'release_date'>Release Date:</label><br>
+        <input type = 'text' name='release_date'><br>
+        Artist:<br>
+        {{artist_form.hidden_tag()}}
+        {{artist_form.artists}}<br>
+        <input type = 'submit' value = 'Add Entry'>
+    </form>
+</div>
 
-<h2>
-    Albums posts = <br>
+<div id='post_style'>
+    <h2>Albums posts:</h2><br>
     {% for album in allAlbums %}
-        {{album.name, album.releaseDate}} Artist = {{album.artistName.name}}, Genres = {{album.genres}} <br><br>
+    <div id='posts'>
+        Name: {{album.name}}<br>
+        Release Date: {{album.releaseDate}}<br> 
+        Artist: {{album.artistName.name}}<br>
+        Genres: {{album.genres}}<br>
+        <form action='/album' method='POST' enctype="multipart/form-data">
+            Add Genre:
+            {{genre_form.hidden_tag()}}
+            {{genre_form.genre}}
+            <input type='hidden' name='album_id' value='{{album.id}}'>
+            <input type = 'submit' value = 'Add Genre'>
+        </form><br>
+    </div>
     {% endfor %}
-</h2>
+</div>

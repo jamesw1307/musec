@@ -65,6 +65,9 @@ def login():
                 return redirect(url_for('profile'))
         elif username or password:
             errorMessage = 'enter into all fields'
+        else:
+            errorMessage = 'enter an existing username and password'
+
     return render_template('login.html', errorMessage=errorMessage)
 
 @app.route('/profile', methods=['POST', 'GET'])
@@ -104,8 +107,14 @@ def profile():
 
     return render_template('profile.html', username=username, albumInfo=albumInfo, artistInfo=artistInfo, genreInfo=genreInfo)
 
+
 class SelectArtist(FlaskForm):
     artists = SelectField('Artist', validators=[DataRequired()], coerce=int)
+
+
+class SelectGenre(FlaskForm):
+    genre = SelectField('Genre', validators=[DataRequired()], coerce=int)
+
 
 @app.route('/album', methods=['POST', 'GET'])
 def album():
@@ -116,18 +125,22 @@ def album():
         userId = userInfo
         username = models.User.query.filter_by(id=userId).first_or_404()
 
-    form = SelectArtist()
+    artist_form = SelectArtist()
     artists = models.Artist.query.all()
-    form.artists.choices = [(artist.id, artist.name) for artist in artists]
+    artist_form.artists.choices = [(artist.id, artist.name) for artist in artists]
+
+    genre_form = SelectGenre()
+    genres = models.Genre.query.all()
+    genre_form.genre.choices = [(genre.id, genre.name) for genre in genres]
 
     if request.method == 'POST':
         album_name = request.form.get('album_name')
         release_date = request.form.get('release_date')
 
         #if all fields are full enter to db
-        if form.validate_on_submit() and album_name and release_date:
+        if artist_form.validate_on_submit() and album_name and release_date:
             #get selected artist from form and query for its id
-            artist = dict(form.artists.choices).get(form.artists.data)
+            artist = dict(artist_form.artists.choices).get(artist_form.artists.data)
             artistInfo = models.Artist.query.filter_by(name=artist).first_or_404()
             artistId = artistInfo.id
 
@@ -138,10 +151,23 @@ def album():
         #elif one field is blank, error
         elif album_name or release_date:
             print('please enter in all fields')
+
+        if genre_form.validate_on_submit():
+            #get selected genre from form and query for its id
+            genre = dict(genre_form.genre.choices).get(genre_form.genre.data)
+            genre_info = models.Genre.query.filter_by(name=genre).first_or_404()
+
+            #get genreId from request form from html
+            album_id = request.form.get('album_id')
+
+            album = models.Album.query.filter_by(id=album_id).first_or_404()
+            album.genres.append(genre_info)
+            db.session.merge(album)
+            db.session.commit()
     
     allAlbums = models.Album.query.all()
 
-    return render_template('album.html', username=username, allAlbums=allAlbums, form=form)
+    return render_template('album.html', username=username, allAlbums=allAlbums, artist_form=artist_form, genre_form=genre_form)
 
 @app.route('/artist', methods = ['POST', 'GET'])
 def artist():
@@ -198,9 +224,9 @@ def genre():
             albumInfo = models.Album.query.filter_by(name=album).first_or_404()
 
             #get genreId from request form from html
-            genreId = request.form.get('genre_id')
+            genre_id = request.form.get('genre_id')
 
-            genre = models.Genre.query.filter_by(id=genreId).first_or_404()
+            genre = models.Genre.query.filter_by(id=genre_id).first_or_404()
             genre.albums.append(albumInfo)
             db.session.merge(genre)
             db.session.commit()
