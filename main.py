@@ -20,65 +20,58 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app, session_options={'autoflush': False})
 
 
-#The login page will be the default page the website directs to
+# The login page will be the default page the website directs to
 @app.route('/', methods = ['POST', 'GET'])
 def create_account():
     session['logged_in'] = False
-    errorMessage = None
+    error_message = None
     if request.method == 'POST':
         new_username = request.form.get('new_username')
         new_password = request.form.get('new_password')
-        #takes username and password values from new_username and new_password and commits it to musek.db
-        if new_password and new_username:
+        if new_password and new_username: # takes username and password values from new_username and new_password and commits it to musek.db
             user_info = models.User(
                 username = new_username,
-                #generates a random string for the password in the database so the users password is secure
-                password = generate_password_hash(new_password, salt_length=10)
+                password = generate_password_hash(new_password, salt_length=10) # generates a random string for the password in the database so the users password is secure
             )
             db.session.add(user_info)
             db.session.commit()
-            #redirect to login to enter the users username and password to login
-            return redirect(url_for('login'))
+            return redirect(url_for('login')) # redirect to login to enter the users username and password to login
         else:
-            #if no value print errorMessage
-            errorMessage = 'please enter a valid username and password'
+            error_message = 'please enter a valid username and password' # if no value print errorMessage
     
-    return render_template('createaccount.html', errorMessage=errorMessage)
+    return render_template('createaccount.html', errorMessage=error_message)
 
 
 @app.route('/login', methods = ['POST', 'GET'])
 def login():
-    errorMessage = None
-    #takes values from the username and password input box
-    if request.method == 'POST':
+    error_message = None
+    
+    if request.method == 'POST': # takes values from the username and password input box
         username = request.form.get('username')
         password = request.form.get('password')
         user_stuff = models.User.query.filter_by(username=username).first()
 
-        #check that username and unhashed password match
-        if username and check_password_hash(user_stuff.password, password):
-            #Get id from db of the username entered in username
-            user_info = models.User.query.filter_by(username=username).first_or_404()
-            #get id of the user
-            user_id = user_info.id
-            #if username and password are list redirect to profile with session containing the users id
-            if list(username) and list(password):
-                print('valid')
-                session['logged_in'] = user_id
-                return redirect(url_for('profile'))
-        elif username or check_password_hash(user_stuff.password, password):
-            errorMessage = 'username or password incorrect'
+        if user_stuff: # if username entered exists in db
+            if username and check_password_hash(user_stuff.password, password): #check that username and unhashed password match
+                user_info = models.User.query.filter_by(username=username).first_or_404() # Get id from db of the username entered in username
+                user_id = user_info.id # get id of the user
+                if list(username) and list(password): # if username and password are list redirect to profile with session containing the users id
+                    print('valid')
+                    session['logged_in'] = user_id
+                    return redirect(url_for('profile'))
+            elif username or check_password_hash(user_stuff.password, password):
+                error_message = 'username or password incorrect'
+        elif user_stuff == None: # if user entered doesn't exist
+            error_message = 'enter an existing username and password'
 
-    return render_template('login.html', errorMessage=errorMessage)
+    return render_template('login.html', errorMessage=error_message)
 
 
 @app.route('/profile', methods=['POST', 'GET'])
 def profile():
-    #if user tries to access page without being logged in redirect to create_account
-    if 'logged_in' not in session:
+    if 'logged_in' not in session: # if user tries to access page without being logged in redirect to create_account
         return redirect(url_for('create_account'))
-    #if logged in take the info from the session
-    elif 'logged_in' in session:
+    elif 'logged_in' in session: # if logged in take the info from the session
         user_info = session['logged_in']
         user_id = user_info
         username = models.User.query.filter_by(id=user_id).first_or_404()
@@ -87,15 +80,12 @@ def profile():
     artist_info = models.Artist.query.filter_by(addedBy=user_id).all()
     genre_info = models.Genre.query.filter_by(addedBy=user_id).all()
 
-    #if delete button on any user entry is clicked
-    if request.method == 'POST':
-        #get id of the entry linked to the delete button
+    if request.method == 'POST': # if delete button on any user entry is clicked
         album_id = request.form.get('album_id')
         artist_id = request.form.get('artist_id')
-        genre_id = request.form.get('genre_id')
+        genre_id = request.form.get('genre_id') # get id of the entry linked to the delete button
 
-        #if there is a value for the entry id, delete from the database
-        if album_id:
+        if album_id: # if there is a value for the entry id, delete from the database
             db.session.query(models.Album).filter_by(id=album_id).delete()
             db.session.commit()
         elif artist_id:
@@ -105,7 +95,7 @@ def profile():
             db.session.query(models.Genre).filter_by(id=genre_id).delete()
             db.session.commit()
 
-        return redirect(url_for('profile')) #reload page
+        return redirect(url_for('profile')) # reload page
 
     return render_template('profile.html', username=username, albumInfo=album_info, artistInfo=artist_info, genreInfo=genre_info)
 
@@ -139,28 +129,23 @@ def album():
         album_name = request.form.get('album_name')
         release_date = request.form.get('release_date')
 
-        #if all fields are full enter to db
-        if artist_form.validate_on_submit() and album_name and release_date:
-            #get selected artist from form and query for its id
+        if artist_form.validate_on_submit() and album_name and release_date: # if all fields are full enter to db
             artist = dict(artist_form.artists.choices).get(artist_form.artists.data)
             artist_info = models.Artist.query.filter_by(name=artist).first_or_404()
-            artist_id = artist_info.id
+            artist_id = artist_info.id # get selected artist from form and query for its id
 
             album_info = (models.Album(name=album_name, releaseDate=release_date, artist=artist_id, addedBy=user_id))
             
             db.session.add(album_info)
             db.session.commit()
-        #elif one field is blank, error
-        elif album_name or release_date:
+        elif album_name or release_date: # elif one field is blank, error
             print('please enter in all fields')
 
         if genre_form.validate_on_submit():
-            #get selected genre from form and query for its id
             genre = dict(genre_form.genre.choices).get(genre_form.genre.data)
-            genre_info = models.Genre.query.filter_by(name=genre).first_or_404()
+            genre_info = models.Genre.query.filter_by(name=genre).first_or_404() # get selected genre from form and query for its id
 
-            #get genreId from request form from html
-            album_id = request.form.get('album_id')
+            album_id = request.form.get('album_id')  # get album id from request form from html
 
             album = models.Album.query.filter_by(id=album_id).first_or_404()
             album.genres.append(genre_info)
@@ -224,12 +209,10 @@ def genre():
             db.session.commit()
         
         if form.validate_on_submit():
-            #get selected album from form and query for its id
             album = dict(form.albums.choices).get(form.albums.data)
-            album_info = models.Album.query.filter_by(name=album).first_or_404()
+            album_info = models.Album.query.filter_by(name=album).first_or_404() # get selected album from form and query for its id
 
-            #get genreId from request form from html
-            genre_id = request.form.get('genre_id')
+            genre_id = request.form.get('genre_id') # get genre id from request form from html
 
             genre = models.Genre.query.filter_by(id=genre_id).first_or_404()
             genre.albums.append(album_info)
