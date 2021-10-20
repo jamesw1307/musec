@@ -23,5 +23,6 @@ and a submit button-->
             style='width: 300px'><br>
             <input type = 'submit' value = 'Login'>
         </form>
+        <p>{% if errorMessage %} {{errorMessage}} {% endif %}</p>
     </div>
 </html>

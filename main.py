@@ -12,11 +12,13 @@ from os import urandom
 
 import models
 
+
 app = Flask(__name__)
 SECRET_KEY = ('jam')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///musek.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app, session_options={'autoflush': False})
+
 
 #The login page will be the default page the website directs to
 @app.route('/', methods = ['POST', 'GET'])
@@ -43,6 +45,7 @@ def create_account():
     
     return render_template('createaccount.html', errorMessage=errorMessage)
 
+
 @app.route('/login', methods = ['POST', 'GET'])
 def login():
     errorMessage = None
@@ -55,20 +58,19 @@ def login():
         #check that username and unhashed password match
         if username and check_password_hash(user_stuff.password, password):
             #Get id from db of the username entered in username
-            userInfo = models.User.query.filter_by(username=username).first_or_404()
+            user_info = models.User.query.filter_by(username=username).first_or_404()
             #get id of the user
-            userId = userInfo.id
+            user_id = user_info.id
             #if username and password are list redirect to profile with session containing the users id
             if list(username) and list(password):
                 print('valid')
-                session['logged_in'] = userId
+                session['logged_in'] = user_id
                 return redirect(url_for('profile'))
-        elif username or password:
-            errorMessage = 'enter into all fields'
-        else:
-            errorMessage = 'enter an existing username and password'
+        elif username or check_password_hash(user_stuff.password, password):
+            errorMessage = 'username or password incorrect'
 
     return render_template('login.html', errorMessage=errorMessage)
+
 
 @app.route('/profile', methods=['POST', 'GET'])
 def profile():
@@ -77,13 +79,13 @@ def profile():
         return redirect(url_for('create_account'))
     #if logged in take the info from the session
     elif 'logged_in' in session:
-        userInfo = session['logged_in']
-        userId = userInfo
-        username = models.User.query.filter_by(id=userId).first_or_404()
+        user_info = session['logged_in']
+        user_id = user_info
+        username = models.User.query.filter_by(id=user_id).first_or_404()
     
-    albumInfo = models.Album.query.filter_by(addedBy=userId).all()
-    artistInfo = models.Artist.query.filter_by(addedBy=userId).all()
-    genreInfo = models.Genre.query.filter_by(addedBy=userId).all()
+    album_info = models.Album.query.filter_by(addedBy=user_id).all()
+    artist_info = models.Artist.query.filter_by(addedBy=user_id).all()
+    genre_info = models.Genre.query.filter_by(addedBy=user_id).all()
 
     #if delete button on any user entry is clicked
     if request.method == 'POST':
@@ -105,7 +107,7 @@ def profile():
 
         return redirect(url_for('profile')) #reload page
 
-    return render_template('profile.html', username=username, albumInfo=albumInfo, artistInfo=artistInfo, genreInfo=genreInfo)
+    return render_template('profile.html', username=username, albumInfo=album_info, artistInfo=artist_info, genreInfo=genre_info)
 
 
 class SelectArtist(FlaskForm):
@@ -121,9 +123,9 @@ def album():
     if 'logged_in' not in session:
         return redirect(url_for('create_account'))
     elif 'logged_in' in session:
-        userInfo = session['logged_in']
-        userId = userInfo
-        username = models.User.query.filter_by(id=userId).first_or_404()
+        user_info = session['logged_in']
+        user_id = user_info
+        username = models.User.query.filter_by(id=user_id).first_or_404()
 
     artist_form = SelectArtist()
     artists = models.Artist.query.all()
@@ -141,12 +143,12 @@ def album():
         if artist_form.validate_on_submit() and album_name and release_date:
             #get selected artist from form and query for its id
             artist = dict(artist_form.artists.choices).get(artist_form.artists.data)
-            artistInfo = models.Artist.query.filter_by(name=artist).first_or_404()
-            artistId = artistInfo.id
+            artist_info = models.Artist.query.filter_by(name=artist).first_or_404()
+            artist_id = artist_info.id
 
-            albumInfo = (models.Album(name=album_name, releaseDate=release_date, artist=artistId, addedBy=userId))
+            album_info = (models.Album(name=album_name, releaseDate=release_date, artist=artist_id, addedBy=user_id))
             
-            db.session.add(albumInfo)
+            db.session.add(album_info)
             db.session.commit()
         #elif one field is blank, error
         elif album_name or release_date:
@@ -165,18 +167,19 @@ def album():
             db.session.merge(album)
             db.session.commit()
     
-    allAlbums = models.Album.query.all()
+    all_albums = models.Album.query.all()
 
-    return render_template('album.html', username=username, allAlbums=allAlbums, artist_form=artist_form, genre_form=genre_form)
+    return render_template('album.html', username=username, allAlbums=all_albums, artist_form=artist_form, genre_form=genre_form)
+
 
 @app.route('/artist', methods = ['POST', 'GET'])
 def artist():
     if 'logged_in' not in session:
         return redirect(url_for('create_account'))
     elif 'logged_in' in session:
-        userInfo = session['logged_in']
-        userId = userInfo
-        username = models.User.query.filter_by(id=userId).first_or_404()
+        user_info = session['logged_in']
+        user_id = user_info
+        username = models.User.query.filter_by(id=user_id).first_or_404()
 
     if request.method == 'POST':
         artist_name = request.form.get('artist_name')
@@ -184,25 +187,27 @@ def artist():
         active_years = request.form.get('active_years')
 
         if artist_name and description and active_years and artist_name:
-            db.session.add(models.Artist(name=artist_name, description=description, activeYears=active_years, addedBy=userId))
+            db.session.add(models.Artist(name=artist_name, description=description, activeYears=active_years, addedBy=user_id))
             db.session.commit()
         else:
             print('please enter in all fields')
 
-    allArtists = models.Artist.query.all()
-    return render_template('artist.html', username=username, allArtists=allArtists)
+    all_artists = models.Artist.query.all()
+    return render_template('artist.html', username=username, allArtists=all_artists)
+
 
 class SelectAlbum(FlaskForm):
     albums = SelectField('Album', validators=[DataRequired()], coerce=int)
+
 
 @app.route('/genre', methods = ['POST', 'GET'])
 def genre():
     if 'logged_in' not in session:
         return redirect(url_for('create_account'))
     elif 'logged_in' in session:
-        userInfo = session['logged_in']
-        userId = userInfo
-        username = models.User.query.filter_by(id=userId).first_or_404()
+        user_info = session['logged_in']
+        user_id = user_info
+        username = models.User.query.filter_by(id=user_id).first_or_404()
 
     form = SelectAlbum()
     albums = models.Album.query.all()
@@ -213,27 +218,28 @@ def genre():
         description = request.form.get('description')
 
         if genre_name and description:
-            genreInfo = (models.Genre(name=genre_name, description=description, addedBy=userId))
+            genre_info = (models.Genre(name=genre_name, description=description, addedBy=user_id))
             
-            db.session.add(genreInfo)
+            db.session.add(genre_info)
             db.session.commit()
         
         if form.validate_on_submit():
             #get selected album from form and query for its id
             album = dict(form.albums.choices).get(form.albums.data)
-            albumInfo = models.Album.query.filter_by(name=album).first_or_404()
+            album_info = models.Album.query.filter_by(name=album).first_or_404()
 
             #get genreId from request form from html
             genre_id = request.form.get('genre_id')
 
             genre = models.Genre.query.filter_by(id=genre_id).first_or_404()
-            genre.albums.append(albumInfo)
+            genre.albums.append(album_info)
             db.session.merge(genre)
             db.session.commit()
     
     allGenres = models.Genre.query.all()
 
     return render_template('genre.html', username=username, allGenres=allGenres, form=form) 
+
 
 if __name__ == '__main__':
     app.secret_key = urandom(10)
