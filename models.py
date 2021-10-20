@@ -24,6 +24,7 @@ class Artist(db.Model):
 
     addedBy = db.Column(db.Integer, db.ForeignKey('User.id'))
     albums = db.relationship('Album', backref='Artist')
+    user_name = db.relationship('User', backref='Artist')
 
     def __repr__(self):
         return self.name
@@ -41,6 +42,7 @@ class Genre(db.Model):
     addedBy = db.Column(db.Integer, db.ForeignKey('User.id'))
 
     albums = db.relationship('Album', secondary=AlbumGenres, back_populates='genres')
+    user_name = db.relationship('User', backref='Genre')
 
     def __repr__(self):
         return self.name
@@ -56,6 +58,7 @@ class Album(db.Model):
 
     genres = db.relationship('Genre', secondary=AlbumGenres, back_populates='albums')
     artistName = db.relationship('Artist', backref='Album')
+    user_name = db.relationship('User', backref='Album')
 
     def __repr__(self):
         return self.name
