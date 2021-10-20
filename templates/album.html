@@ -12,6 +12,7 @@
         {{artist_form.artists}}<br>
         <input type = 'submit' value = 'Add Entry'>
     </form>
+    <a href='/artist'>If the artist is not on the list, click here to add</a>
 </div>
 
 <div id='post_style'>
@@ -22,6 +23,7 @@
         Release Date: {{album.releaseDate}}<br> 
         Artist: {{album.artistName.name}}<br>
         Genres: {{album.genres}}<br>
+        Added By: {{album.user_name.username}}
         <form action='/album' method='POST' enctype="multipart/form-data">
             Add Genre:
             {{genre_form.hidden_tag()}}
