@@ -1,47 +1,52 @@
 {% include 'header.html'%}<br>
 
-<div id='user_albums'>
-    <h2>Your User Albums:</h2>
-    <p1>
-        {% for albums in albumInfo %}
-            Name: {{albums.name}} <br>
-            Release Date: {{albums.releaseDate}} <br>
-            Artist: {{albums.artistName.name}} <br>
-            Genres: {{albums.genres}} <br>
+<div id='middle'>
+    <div id='user_albums'>
+        <h2>Your User Albums:</h2>
+        <p1>
+            {% for albums in albumInfo %}
+                Name: {{albums.name}} <br>
+                Release Date: {{albums.releaseDate}} <br>
+                Artist: {{albums.artistName.name}} <br>
+                Genres: {{albums.genres}} <br>
 
-            <form action='/profile' method='POST'>
-                <input type='hidden' name='album_id' value={{albums.id}}>
-                <input type='submit' value='Delete'>
-            </form><br>
-        {% endfor %}
-    </p1><br>
-</div>
-<div id='user_artists'>
-    <h2>Your User Artists:</h2>
-    <p2>
-        {% for artists in artistInfo %}
-            Name: {{artists.name}}<br>
-            Description: {{artists.description}}<br> 
-            Active Years: {{artists.activeYears}}<br>
+                <form action='/profile' method='POST' onsubmit="return confirm('Are you sure?')">
+                    <input type='hidden' name='album_id' value={{albums.id}}>
+                    <input type='submit' value='Delete'>
+                </form><br>
+            {% endfor %}
+            <a href='/album'>To add more to your album entries, click here</a><br>
+        </p1><br>
+    </div>
+    <div id='user_artists'>
+        <h2>Your User Artists:</h2>
+        <p2>
+            {% for artists in artistInfo %}
+                Name: {{artists.name}}<br>
+                Description: {{artists.description}}<br> 
+                Active Years: {{artists.activeYears}}<br>
 
-            <form action='/profile' method='POST'>
-                <input type='hidden' name='artist_id' value={{artists.id}}>
-                <input type='submit' value='Delete'>
-            </form><br>
-        {% endfor %}
-    </p2><br>
-</div>
-<div id='user_genres'>
-    <h2>Your User Genres:</h2>
-    <p3>
-        {% for genres in genreInfo %}
-            Name: {{genres.name}} <br>
-            Description: {{genres.description}}<br>
+                <form action='/profile' method='POST' onsubmit="return confirm('Are you sure?')">
+                    <input type='hidden' name='artist_id' value={{artists.id}}>
+                    <input type='submit' value='Delete'>
+                </form><br>
+            {% endfor %}
+            <a href='/artist'>To add more to your artist entries, click here</a><br>
+        </p2><br>
+    </div>
+    <div id='user_genres'>
+        <h2>Your User Genres:</h2>
+        <p3>
+            {% for genres in genreInfo %}
+                Name: {{genres.name}} <br>
+                Description: {{genres.description}}<br>
 
-            <form action='/profile' method='POST'>
-                <input type='hidden' name='genre_id' value={{genres.id}}>
-                <input type='submit' value='Delete'>
-            </form><br>
-        {% endfor %}
-    </p3><br>
+                <form action='/profile' method='POST' onsubmit="return confirm('Are you sure?')">
+                    <input type='hidden' name='genre_id' value={{genres.id}}>
+                    <input type='submit' value='Delete'>
+                </form><br>
+            {% endfor %}
+            <a href='/genre'>To add more to your genre entries, click here</a><br>
+        </p3><br>
+    </div>
 </div>
