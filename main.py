@@ -28,14 +28,18 @@ def create_account():
     if request.method == 'POST':
         new_username = request.form.get('new_username')
         new_password = request.form.get('new_password')
+        user_exists = models.User.query.filter_by(username=new_username)
         if new_password and new_username: # takes username and password values from new_username and new_password and commits it to musek.db
-            user_info = models.User(
-                username = new_username,
-                password = generate_password_hash(new_password, salt_length=10) # generates a random string for the password in the database so the users password is secure
-            )
-            db.session.add(user_info)
-            db.session.commit()
-            return redirect(url_for('login')) # redirect to login to enter the users username and password to login
+            if list(user_exists):
+                error_message = 'username already exists'
+            else:
+                user_info = models.User(
+                    username = new_username,
+                    password = generate_password_hash(new_password, salt_length=10) # generates a random string for the password in the database so the users password is secure
+                )
+                db.session.add(user_info)
+                db.session.commit()
+                return redirect(url_for('login')) # redirect to login to enter the users username and password to login
         else:
             error_message = 'please enter a valid username and password' # if no value print errorMessage
     
