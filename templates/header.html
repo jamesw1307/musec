@@ -3,11 +3,19 @@ the relevant page.-->
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Musec.</title>
     <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
 </head>
 
-<h1>musec.</h1>
+<div id="navbar">
+    <h1>MUSEC.</h1>
+    <a href = '/login'>Login</a> - 
+    <a href = '/'>Create Account</a> - 
+    <a href = '/profile'>Profile</a> - 
+    <a href = '/album'>Album</a> - 
+    <a href = '/artist'>Artist</a> - 
+    <a href = '/genre'>Genre</a><br>
 
-<a href = '/login'>Login</a> - <a href = '/user'>Profile</a> - <a href = '/album'>Album</a> - <a href = '/artist'>Artist</a><br>
-<p>{% if username %} Logged in as {{username}} {% endif %}</p>
+    <p id='logged_in'>{% if username %} Logged in as {{username}} {% endif %}</p>
+</div>
 </html>
