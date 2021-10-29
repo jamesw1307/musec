@@ -20,6 +20,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app, session_options={'autoflush': False})
 
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+
 # The login page will be the default page the website directs to
 @app.route('/', methods = ['POST', 'GET'])
 def create_account():
@@ -152,7 +157,7 @@ def album():
             album_id = request.form.get('album_id')  # get album id from request form from html
 
             album = models.Album.query.filter_by(id=album_id).first_or_404()
-            album.genres.append(genre_info)
+            album.genres.append(genre_info)  # add genre to many to many
             db.session.merge(album)
             db.session.commit()
     
